@@ -1,16 +1,38 @@
+import json
 import os
 import sublime
 import sublime_plugin
+import urllib2
 
 class PasterCommand(sublime_plugin.TextCommand):
     text = None
     title = None
     syntax = None
+    url = 'http://localhost:8000/p/api/paste/'
 
     def run(self, edit):
         self.get_selected_text()
         self.get_title()
         self.get_syntax()
+
+        self.paste()
+
+    def paste(self):
+        data = json.dumps({
+            'title': self.title,
+            'text': 'test data',
+            'syntax': self.syntax
+            })
+        print data
+
+        try:
+            request = urllib2.Request(self.url, data)
+            response = urllib2.urlopen(request)
+
+            print response.getcode()
+            print response.read()
+        except Exception, e:
+            print e
 
     def get_selected_text(self):
         selected_region = self.view.sel()[0]
